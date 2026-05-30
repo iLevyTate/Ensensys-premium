@@ -1,0 +1,1842 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>EnSenSys</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..700,0..100;1,9..144,300..700,0..100&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink-1:#0a0e16;
+    --ink-2:#10151f;
+    --ink-3:#171d2a;
+    --ink-4:#202738;
+    --bone-1:#f4efe5;
+    --bone-2:#ebe5d6;
+    --bone-3:#dcd3bd;
+    --sage:#3f5b50;
+    --sage-2:#5a7468;
+    --amber:#c89254;
+    --amber-2:#b0782f;
+    --amber-soft:#dcae7a;
+    --rule:rgba(244,239,229,.10);
+    --rule-2:rgba(244,239,229,.05);
+    --rule-dark:rgba(10,14,22,.14);
+    --display: 'Fraunces', Georgia, serif;
+    --body: 'IBM Plex Sans', system-ui, sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --maxw: 1360px;
+    --pad: clamp(20px, 4vw, 64px);
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth; scroll-padding-top:88px;}
+  body{
+    margin:0;
+    font-family:var(--body);
+    color:var(--bone-1);
+    background:var(--ink-1);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+    font-weight:300;
+    line-height:1.55;
+    font-size:16px;
+  }
+  ::selection{background:var(--amber); color:var(--ink-1)}
+  a{color:inherit; text-decoration:none}
+  a:focus-visible, button:focus-visible{
+    outline: 2px solid var(--amber-soft);
+    outline-offset: 3px;
+  }
+  img{max-width:100%; display:block}
+
+  /* Scroll progress indicator */
+  .scroll-progress{
+    position:fixed;
+    top:0; left:0;
+    height:2px;
+    background:linear-gradient(90deg, var(--amber) 0%, var(--amber-soft) 100%);
+    z-index:100;
+    width:0;
+    transition:width .12s ease-out;
+    pointer-events:none;
+    box-shadow:0 0 8px rgba(200,146,84,.4);
+  }
+
+  /* ---------- NAV ---------- */
+  .nav{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    padding:22px var(--pad);
+    display:flex; align-items:center; justify-content:space-between;
+    transition: background .4s var(--ease-out), padding .4s var(--ease-out), border-color .4s;
+    border-bottom:1px solid transparent;
+  }
+  .nav.scrolled{
+    background:rgba(10,14,22,.78);
+    backdrop-filter:saturate(120%) blur(14px);
+    -webkit-backdrop-filter:saturate(120%) blur(14px);
+    border-bottom-color:var(--rule);
+    padding:14px var(--pad);
+  }
+  .wordmark{
+    display:inline-flex; align-items:center;
+    transition: opacity .25s;
+  }
+  .wordmark img{
+    height:32px;
+    width:auto;
+    filter: brightness(0) invert(1);
+    opacity:.94;
+    transition: opacity .25s, height .35s var(--ease-out);
+  }
+  .nav.scrolled .wordmark img{ height:26px; }
+  .wordmark:hover img{ opacity:1; }
+  .nav-links{
+    display:flex; gap:42px; align-items:center;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    font-weight:400;
+  }
+  .nav-links a{
+    color:rgba(244,239,229,.62);
+    transition:color .25s;
+    padding:6px 0;
+    position:relative;
+  }
+  .nav-links a::after{
+    content:""; position:absolute; bottom:0; left:0; right:0;
+    height:1px; background:var(--amber);
+    transform:scaleX(0); transform-origin:left;
+    transition:transform .35s var(--ease-out);
+  }
+  .nav-links a:hover{color:var(--bone-1)}
+  .nav-links a:hover::after{transform:scaleX(1)}
+  .nav-cta{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--ink-1);
+    background:var(--amber);
+    padding:13px 22px;
+    border:1px solid var(--amber);
+    transition:background .25s, transform .25s;
+  }
+  .nav-cta:hover{background:var(--amber-2); border-color:var(--amber-2); transform:translateY(-1px)}
+  @media (max-width:920px){ .nav-links{display:none} }
+  @media (max-width:480px){
+    .nav-cta{ display:none; }
+    .wordmark img{ height:28px; }
+    .nav.scrolled .wordmark img{ height:24px; }
+  }
+
+  /* ---------- SHARED ---------- */
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 var(--pad); }
+  .section-label{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    color:rgba(244,239,229,.55);
+    display:inline-flex; align-items:center; gap:16px;
+    font-weight:400;
+  }
+  .section-label::before{
+    content:""; width:36px; height:1px; background:rgba(244,239,229,.32);
+  }
+  .section-label.dark{ color:rgba(10,14,22,.5); }
+  .section-label.dark::before{ background:rgba(10,14,22,.3); }
+  .display{
+    font-family:var(--display);
+    font-weight:300;
+    letter-spacing:-.025em;
+    line-height:.98;
+    font-variation-settings:"opsz" 144, "SOFT" 30;
+  }
+  .display em{
+    font-style:italic;
+    font-weight:300;
+    font-variation-settings:"opsz" 144, "SOFT" 100;
+  }
+  .h-display{ font-size: clamp(56px, 9.5vw, 156px); line-height:.92; letter-spacing:-.035em; }
+  .h-mega{ font-size: clamp(48px, 7vw, 108px); line-height:.96; letter-spacing:-.03em; }
+  .h-lg{ font-size: clamp(36px, 5vw, 76px); line-height:1; }
+  .h-md{ font-size: clamp(28px, 3.4vw, 48px); line-height:1.05; }
+  .lede{
+    font-size:clamp(16px,1.25vw,19px);
+    line-height:1.6;
+    color:rgba(244,239,229,.72);
+    max-width:48ch;
+    font-weight:300;
+  }
+  .lede.dark{ color:rgba(10,14,22,.7); }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    min-height:100vh;
+    overflow:hidden;
+    background:
+      radial-gradient(ellipse at 15% 25%, #18223a 0%, transparent 55%),
+      linear-gradient(180deg, #0a0e16 0%, #050810 100%);
+    display:flex; flex-direction:column;
+  }
+  .hero-grid{
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(to right, rgba(244,239,229,.018) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(244,239,229,.018) 1px, transparent 1px);
+    background-size: 100px 100px;
+    pointer-events:none;
+    mask-image:radial-gradient(ellipse at 30% 50%, black 20%, transparent 75%);
+    -webkit-mask-image:radial-gradient(ellipse at 30% 50%, black 20%, transparent 75%);
+  }
+  .hero-product{
+    position:absolute;
+    top:0; right:0; bottom:0;
+    width:52%;
+    z-index:1;
+    overflow:hidden;
+  }
+  .hero-product img{
+    width:100%; height:115%;
+    object-fit:cover; object-position:center center;
+    filter:contrast(1.05) saturate(.9) brightness(.92);
+    will-change:transform;
+    transition:transform .4s ease-out;
+  }
+  .hero-product::before{
+    content:""; position:absolute; inset:0; z-index:2;
+    background:
+      linear-gradient(to right, var(--ink-1) 0%, rgba(10,14,22,.94) 16%, rgba(10,14,22,.5) 40%, transparent 70%),
+      linear-gradient(to bottom, rgba(10,14,22,.62) 0%, transparent 24%, transparent 76%, rgba(10,14,22,.88) 100%);
+  }
+  .hero-product::after{
+    content:""; position:absolute; top:12%; left:0; bottom:12%; width:1px;
+    background:linear-gradient(to bottom, transparent 0%, rgba(220,174,122,.28) 50%, transparent 100%);
+    z-index:3;
+  }
+  @media(max-width:880px){
+    .hero-product{ display:none; }
+  }
+  .hero-inner{
+    position:relative; z-index:3;
+    max-width:var(--maxw); margin:0 auto;
+    padding: clamp(120px, 16vh, 168px) var(--pad) 0;
+    width:100%; flex:1;
+    display:flex; flex-direction:column; justify-content:center;
+  }
+  .hero-content{
+    max-width:720px;
+  }
+  .hero-label{
+    margin-bottom:44px;
+    opacity:0; transform:translateY(8px);
+    animation:fadeUp .8s var(--ease-out) .1s forwards;
+  }
+  .hero h1{
+    margin:0 0 32px;
+    color:var(--bone-1);
+    font-variation-settings:"opsz" 144, "SOFT" 30;
+  }
+  .hero h1 .word{
+    display:inline-block;
+    opacity:0;
+    transform:translateY(28px);
+    animation: wordIn .9s var(--ease-out) forwards;
+  }
+  .hero h1 em.word{
+    color:var(--amber-soft);
+    font-style:italic;
+    font-variation-settings:"opsz" 144, "SOFT" 100;
+  }
+  @keyframes wordIn{
+    to{ opacity:1; transform:translateY(0); }
+  }
+  @keyframes fadeUp{
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .hero-sub{
+    font-size:clamp(17px,1.35vw,20px);
+    line-height:1.55;
+    color:rgba(244,239,229,.72);
+    max-width:50ch;
+    font-weight:300;
+    margin:0 0 40px;
+    opacity:0;
+    animation: fadeUp .8s var(--ease-out) 1.0s forwards;
+  }
+  .hero-cta-row{
+    display:flex; gap:14px; flex-wrap:wrap;
+    opacity:0;
+    animation: fadeUp .8s var(--ease-out) 1.2s forwards;
+  }
+  .btn{
+    display:inline-flex; align-items:center; gap:12px;
+    font-family:var(--mono); font-size:11px;
+    letter-spacing:.18em; text-transform:uppercase;
+    padding:17px 26px;
+    border:1px solid transparent;
+    transition: background .3s, color .3s, border-color .3s, transform .25s;
+    cursor:pointer;
+    font-weight:400;
+  }
+  .btn-primary{ background:var(--amber); color:var(--ink-1); border-color:var(--amber); }
+  .btn-primary:hover{ background:var(--amber-2); border-color:var(--amber-2); transform:translateY(-1px); }
+  .btn-ghost{ background:transparent; color:var(--bone-1); border-color:rgba(244,239,229,.2); }
+  .btn-ghost:hover{ border-color:rgba(244,239,229,.5); }
+  .btn .arrow{ font-size:12px; transition:transform .3s var(--ease-out); }
+  .btn:hover .arrow{ transform:translateX(4px); }
+
+  /* Hero status line */
+  .hero-status{
+    position:relative; z-index:3;
+    max-width:var(--maxw); margin:0 auto;
+    width:100%;
+    padding: 64px var(--pad) 56px;
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:0;
+    opacity:0;
+    animation: fadeUp 1s var(--ease-out) 1.6s forwards;
+  }
+  .hero-status::before{
+    content:""; position:absolute; top:0; left:var(--pad); right:var(--pad);
+    height:1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(244,239,229,.18) 22%, rgba(244,239,229,.18) 78%, transparent 100%);
+  }
+  .status-cell{
+    padding:0 36px 0 0;
+    border-right:1px solid var(--rule);
+    position:relative;
+  }
+  .status-cell:nth-child(2),
+  .status-cell:nth-child(3){
+    padding-left:36px;
+  }
+  .status-cell:last-child{ border-right:none; padding-right:0; }
+  .status-num{
+    font-family:var(--mono); font-size:10px;
+    letter-spacing:.28em;
+    color:rgba(244,239,229,.4);
+    margin-bottom:14px;
+    font-weight:400;
+  }
+  .status-cell .v{
+    font-family:var(--display); font-size:17px;
+    color:var(--bone-1);
+    font-weight:400;
+    letter-spacing:-.01em;
+    line-height:1.35;
+    display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+  }
+  .status-cell .live-dot{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--amber);
+    box-shadow: 0 0 0 3px rgba(200,146,84,.15);
+    animation: pulseDot 2.4s ease-in-out infinite;
+    flex:none;
+    align-self:center;
+  }
+  .status-cell .v .sub{
+    display:block;
+    flex:1 1 100%;
+    font-family:var(--body); font-size:12.5px;
+    color:rgba(244,239,229,.5);
+    margin-top:6px;
+    font-weight:300;
+    letter-spacing:0;
+  }
+  @keyframes pulseDot{
+    0%,100%{ box-shadow:0 0 0 3px rgba(200,146,84,.15), 0 0 8px rgba(200,146,84,.3); }
+    50%{ box-shadow:0 0 0 6px rgba(200,146,84,.04), 0 0 14px rgba(200,146,84,.6); }
+  }
+  @media(max-width:760px){
+    .hero-status{
+      grid-template-columns: 1fr;
+      padding:40px var(--pad) 40px;
+    }
+    .status-cell{
+      padding:20px 0 !important;
+      border-right:none;
+      border-bottom:1px solid var(--rule);
+    }
+    .status-cell:last-child{ border-bottom:none; }
+  }
+
+  /* ---------- MISSION ---------- */
+  .mission{
+    background:var(--bone-1);
+    color:var(--ink-1);
+    padding: clamp(72px, 12vw, 180px) var(--pad);
+    position:relative;
+  }
+  .mission-inner{
+    max-width:var(--maxw); margin:0 auto;
+    display:grid; grid-template-columns: 1fr; gap:56px;
+  }
+  @media(min-width:920px){
+    .mission-inner{ grid-template-columns: 6fr 5fr; gap:96px; align-items:start; }
+  }
+  .mission-title{
+    margin:28px 0 0;
+    color:var(--ink-1);
+    font-variation-settings:"opsz" 144, "SOFT" 20;
+  }
+  .mission-title em{ font-style:italic; color:var(--sage); font-variation-settings:"opsz" 144, "SOFT" 100; }
+  .mission-body p{
+    margin:0 0 22px;
+    font-size:16px;
+    line-height:1.7;
+    color:rgba(10,14,22,.7);
+    max-width:48ch;
+    font-weight:300;
+  }
+  .mission-stats{
+    margin-top:56px;
+    display:grid; grid-template-columns:repeat(2,1fr); gap:40px 36px;
+  }
+  .mission-stats .stat{
+    border-top:1px solid rgba(10,14,22,.18);
+    padding-top:20px;
+  }
+  .mission-stats .num{
+    font-family:var(--display);
+    font-size:clamp(36px, 4vw, 52px);
+    line-height:1;
+    color:var(--ink-1);
+    font-weight:300;
+    letter-spacing:-.02em;
+    font-variation-settings:"opsz" 144, "SOFT" 30;
+  }
+  .mission-stats .num .unit{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--sage);
+    margin-left:6px;
+    letter-spacing:.06em;
+    font-weight:400;
+  }
+  .mission-stats .num .count{ display:inline-block; min-width:1ch; }
+  .mission-stats .lbl{
+    font-family:var(--mono); font-size:10px;
+    letter-spacing:.22em; text-transform:uppercase;
+    color:rgba(10,14,22,.55);
+    margin-top:12px;
+    font-weight:400;
+  }
+
+  /* ---------- TECHNOLOGY ---------- */
+  .tech{
+    background:var(--ink-1);
+    padding: clamp(72px, 12vw, 180px) var(--pad);
+    position:relative;
+  }
+  .tech-inner{ max-width:var(--maxw); margin:0 auto; }
+  .tech-head{
+    display:grid; grid-template-columns:1fr; gap:32px;
+    margin-bottom:80px;
+    align-items:end;
+  }
+  @media(min-width:920px){
+    .tech-head{ grid-template-columns: 6fr 5fr; gap:96px; }
+  }
+  .tech-head h2{ margin:28px 0 0; max-width:16ch; }
+  .tech-head h2 em{ font-style:italic; color:var(--amber-soft); }
+
+  /* Pipeline */
+  .pipeline{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:0;
+    border-top:1px solid var(--rule);
+    border-bottom:1px solid var(--rule);
+    margin-bottom:80px;
+  }
+  @media(min-width:880px){
+    .pipeline{ grid-template-columns: repeat(3, 1fr); }
+  }
+  .step{
+    padding:52px 40px;
+    position:relative;
+    border-right:1px solid var(--rule);
+  }
+  .step:first-child{ padding-left:0; }
+  .step:last-child{ padding-right:0; border-right:none; }
+  @media(max-width:880px){
+    .step{
+      padding:36px 0;
+      border-right:none;
+      border-bottom:1px solid var(--rule);
+    }
+    .step:first-child{ padding-left:0; padding-top:36px; }
+    .step:last-child{ padding-right:0; border-bottom:none; }
+  }
+  .step-num{
+    font-family:var(--mono); font-size:10px;
+    letter-spacing:.28em; color:var(--amber-soft);
+    margin-bottom:32px;
+    font-weight:400;
+  }
+  .step-icon{ margin-bottom:28px; }
+  .step-icon svg{ overflow:visible; }
+  .step-icon circle.dot-accent{
+    transition: r .4s var(--ease-out), fill .3s;
+  }
+  .step:hover .step-icon circle.dot-accent{ r: 3.5; fill:var(--amber); }
+  .step-icon path.ray{ transition: opacity .3s; }
+  .step h3{
+    font-family:var(--display);
+    font-size:26px; font-weight:400;
+    line-height:1.2;
+    margin:0 0 12px;
+    color:var(--bone-1);
+    letter-spacing:-.015em;
+    font-variation-settings:"opsz" 80, "SOFT" 30;
+  }
+  .step p{
+    margin:0;
+    font-size:14.5px;
+    color:rgba(244,239,229,.62);
+    line-height:1.65;
+    max-width:38ch;
+    font-weight:300;
+  }
+
+  /* Signature panel — chart → arrow → operator UI */
+  .signature{
+    background:var(--ink-2);
+    border:1px solid var(--rule);
+    padding: clamp(40px, 5vw, 72px) clamp(32px, 4vw, 64px);
+  }
+  .signature-head{
+    margin-bottom: 48px;
+    max-width: 800px;
+  }
+  .signature-head .lbl{
+    font-family:var(--mono); font-size:11px;
+    letter-spacing:.28em; text-transform:uppercase;
+    color:var(--amber-soft);
+    margin-bottom:18px;
+    font-weight:400;
+  }
+  .signature-head h3{
+    font-family:var(--display);
+    font-size:clamp(26px, 3.2vw, 40px);
+    font-weight:300;
+    line-height:1.12;
+    letter-spacing:-.02em;
+    margin:0 0 18px;
+    color:var(--bone-1);
+    font-variation-settings:"opsz" 120, "SOFT" 30;
+  }
+  .signature-head h3 em{ font-style:italic; color:var(--amber-soft); font-variation-settings:"opsz" 120, "SOFT" 100; }
+  .signature-head p{
+    margin:0;
+    font-size:15px;
+    color:rgba(244,239,229,.65);
+    line-height:1.65;
+    max-width:60ch;
+    font-weight:300;
+  }
+  .signature-flow{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:24px;
+    align-items:stretch;
+  }
+  @media(min-width:980px){
+    .signature-flow{
+      grid-template-columns: 1.4fr 80px 1fr;
+      gap:0;
+    }
+  }
+  .chart-wrap{
+    position:relative;
+    background:#070b13;
+    border:1px solid var(--rule);
+    padding:28px 28px 24px;
+    display:flex; flex-direction:column;
+  }
+  .chart-meta{
+    display:flex; justify-content:space-between;
+    font-family:var(--mono); font-size:10px;
+    color:rgba(244,239,229,.45);
+    letter-spacing:.18em; text-transform:uppercase;
+    margin-bottom:24px;
+    font-weight:400;
+  }
+  .chart-meta .live{
+    color:var(--amber-soft);
+    display:inline-flex; align-items:center; gap:7px;
+  }
+  .chart-meta .live::before{
+    content:""; width:5px; height:5px; border-radius:50%;
+    background:var(--amber);
+    animation: pulseDot 1.8s ease-in-out infinite;
+  }
+  .chart-svg{ width:100%; height:280px; display:block; flex:1; }
+  .chart-x-axis{
+    display:flex; justify-content:space-between;
+    font-family:var(--mono); font-size:10px;
+    color:rgba(244,239,229,.4);
+    margin-top:14px;
+    letter-spacing:.08em;
+    font-weight:400;
+  }
+
+  /* Chart curves */
+  .chart-ref-curve{
+    fill:none;
+    stroke:rgba(244,239,229,.22);
+    stroke-width:1.2;
+    stroke-dasharray: 1500;
+    stroke-dashoffset: 1500;
+    transition: stroke-dashoffset 2.2s var(--ease-out) .4s;
+  }
+  .reveal.in .chart-ref-curve{ stroke-dashoffset: 0; }
+  .chart-sample-curve{
+    fill:none;
+    stroke:var(--amber-soft);
+    stroke-width:1.8;
+    stroke-linecap:round;
+    stroke-dasharray: 1500;
+    stroke-dashoffset: 1500;
+    transition: stroke-dashoffset 2.4s var(--ease-out) 1s;
+    filter: drop-shadow(0 0 6px rgba(220,174,122,.4));
+  }
+  .reveal.in .chart-sample-curve{ stroke-dashoffset: 0; }
+  .chart-sample-area{
+    fill:url(#sampleGrad);
+    opacity:0;
+    transition: opacity 1.4s ease 2.2s;
+  }
+  .reveal.in .chart-sample-area{ opacity:1; }
+  .chart-peak{
+    opacity:0;
+    transition: opacity .4s ease 3s;
+  }
+  .reveal.in .chart-peak{ opacity:1; }
+
+  /* Arrow connector */
+  .flow-arrow{
+    display:flex; align-items:center; justify-content:center;
+    color:var(--amber-soft);
+    padding: 32px 0;
+  }
+  .flow-arrow svg{
+    width: 100px;
+    height: 40px;
+    overflow:visible;
+  }
+  .flow-arrow .arrow-line{
+    stroke:var(--amber-soft);
+    stroke-width:1;
+    stroke-linecap:round;
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+    transition: stroke-dashoffset .9s ease 1.4s;
+  }
+  .flow-arrow .arrow-line-2{
+    stroke-dasharray: 30;
+    stroke-dashoffset: 30;
+    transition: stroke-dashoffset .8s ease 2.0s;
+  }
+  .reveal.in .flow-arrow .arrow-line,
+  .reveal.in .flow-arrow .arrow-line-2{ stroke-dashoffset: 0; }
+  .flow-arrow .arrow-node{
+    fill:var(--amber-soft);
+    stroke:none;
+    opacity:0;
+    transform-origin:center;
+    transition: opacity .4s ease 1.8s, transform .4s ease 1.8s;
+  }
+  .reveal.in .flow-arrow .arrow-node{
+    opacity:1;
+    animation: nodePulse 2.4s ease-in-out infinite 2.6s;
+  }
+  @keyframes nodePulse{
+    0%, 100% { transform:scale(1); filter:drop-shadow(0 0 2px rgba(220,174,122,.4)); }
+    50% { transform:scale(1.3); filter:drop-shadow(0 0 6px rgba(220,174,122,.8)); }
+  }
+  .flow-arrow .arrow-head{
+    fill:none;
+    stroke:var(--amber-soft);
+    stroke-width:1;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    opacity:0;
+    transition: opacity .3s ease 2.6s;
+  }
+  .reveal.in .flow-arrow .arrow-head{ opacity:1; }
+  @media(max-width:980px){
+    .flow-arrow{ transform: rotate(90deg); height:60px; padding:0; }
+  }
+
+  /* Operator UI panel */
+  .verdict{
+    position:relative;
+    background:#070b13;
+    border:1px solid var(--rule);
+    display:flex; flex-direction:column;
+    overflow:hidden;
+  }
+  .verdict-head{
+    padding:18px 24px;
+    border-bottom:1px solid var(--rule);
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:var(--mono); font-size:10px;
+    letter-spacing:.22em; text-transform:uppercase;
+    color:rgba(244,239,229,.5);
+    font-weight:400;
+  }
+  .verdict-head .right{
+    color:var(--amber-soft);
+  }
+  .verdict-img-wrap{
+    position:relative;
+    flex:1;
+    background:#0c1422;
+    aspect-ratio: 4/3;
+    overflow:hidden;
+  }
+  .verdict-img-wrap img{
+    width:100%; height:100%;
+    object-fit:cover; object-position:center;
+  }
+  .verdict-caption{
+    padding:18px 24px;
+    border-top:1px solid var(--rule);
+    font-family:var(--mono); font-size:11px;
+    letter-spacing:.18em; text-transform:uppercase;
+    color:rgba(244,239,229,.6);
+    font-weight:400;
+  }
+
+  /* ---------- IN THE FIELD ---------- */
+  .field{
+    background:var(--ink-1);
+    padding: 0 var(--pad) clamp(72px, 12vw, 180px);
+  }
+  .field-inner{ max-width:var(--maxw); margin:0 auto; }
+  .field-head{
+    display:grid; grid-template-columns:1fr; gap:32px;
+    margin-bottom:72px;
+    align-items:end;
+  }
+  @media(min-width:920px){
+    .field-head{ grid-template-columns: 6fr 5fr; gap:96px; }
+  }
+  .field-head h2{ margin:28px 0 0; max-width:18ch; }
+  .field-head h2 em{ font-style:italic; color:var(--amber-soft); }
+  .field-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:20px;
+  }
+  @media(min-width:880px){
+    .field-grid{
+      grid-template-columns: 1.5fr 1fr;
+      grid-template-rows: repeat(3, minmax(160px, 220px));
+      gap:20px;
+    }
+    .cell-big{ grid-row: 1 / span 3; }
+  }
+  @media(min-width:1400px){
+    .field-grid{
+      grid-template-rows: repeat(3, 240px);
+    }
+  }
+  .cell{
+    position:relative;
+    overflow:hidden;
+    background:var(--ink-2);
+  }
+  .cell img{
+    width:100%; height:100%;
+    object-fit:cover;
+    transition: transform 1.2s var(--ease-out), filter .4s;
+    filter: contrast(1.05) saturate(.85) brightness(.92);
+  }
+  .cell:hover img{
+    transform: scale(1.04);
+    filter: contrast(1.08) saturate(.95) brightness(1);
+  }
+  .cell .caption{
+    position:absolute; bottom:0; left:0; right:0;
+    padding:24px 24px 22px;
+    background:linear-gradient(180deg, transparent 0%, rgba(10,14,22,.92) 80%);
+    color:var(--bone-1);
+  }
+  .cell .where{
+    font-family:var(--mono); font-size:10px;
+    letter-spacing:.24em; text-transform:uppercase;
+    color:var(--amber-soft);
+    margin-bottom:8px;
+    font-weight:400;
+  }
+  .cell .what{
+    font-family:var(--display);
+    font-size:clamp(13px, 1vw, 15px);
+    line-height:1.4;
+    font-weight:400;
+    color:var(--bone-1);
+    letter-spacing:-.005em;
+  }
+  .cell-big .what{ font-size:clamp(17px, 1.5vw, 21px); }
+  .cell-big .caption{ padding:28px 28px 26px; }
+
+  /* ---------- PRODUCTS ---------- */
+  .products{
+    padding: clamp(72px, 12vw, 180px) var(--pad);
+    background:var(--bone-1);
+    color:var(--ink-1);
+  }
+  .products-head{
+    max-width:var(--maxw); margin:0 auto 72px;
+    display:grid; grid-template-columns:1fr; gap:32px;
+    align-items:end;
+  }
+  @media(min-width:920px){
+    .products-head{ grid-template-columns: 6fr 5fr; gap:96px; }
+  }
+  .products-head h2{
+    margin:28px 0 0;
+    color:var(--ink-1);
+    max-width:15ch;
+    font-variation-settings:"opsz" 144, "SOFT" 20;
+  }
+  .products-head h2 em{ font-style:italic; color:var(--sage); font-variation-settings:"opsz" 144, "SOFT" 100; }
+  .products-head .lede.dark{ font-size:16px; }
+  .product-grid{
+    max-width:var(--maxw); margin:0 auto;
+    display:grid; grid-template-columns:1fr; gap:20px;
+  }
+  @media(min-width:920px){
+    .product-grid{ grid-template-columns:1fr 1fr; gap:20px; }
+  }
+  .product-card{
+    background:var(--ink-1);
+    color:var(--bone-1);
+    position:relative;
+    overflow:hidden;
+    display:flex; flex-direction:column;
+    min-height:600px;
+  }
+  .product-img{
+    position:relative;
+    height:340px;
+    overflow:hidden;
+    background:#0c1422;
+  }
+  .product-img::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(10,14,22,0) 45%, rgba(10,14,22,.96) 100%);
+  }
+  .product-img img{
+    width:100%; height:100%; object-fit:cover;
+    filter:saturate(.88) contrast(1.05) brightness(.92);
+    transition: transform 1.5s var(--ease-out);
+  }
+  .product-card:hover .product-img img{ transform: scale(1.04); }
+  .product-tag{
+    position:absolute; top:24px; left:24px; z-index:2;
+    font-family:var(--mono); font-size:10px;
+    letter-spacing:.22em; text-transform:uppercase;
+    color:var(--amber-soft);
+    padding:9px 14px;
+    border:1px solid rgba(244,239,229,.18);
+    background:rgba(10,14,22,.55);
+    backdrop-filter:blur(6px);
+    font-weight:400;
+  }
+  .product-body{
+    padding:40px 40px 40px;
+    flex:1;
+    display:flex; flex-direction:column;
+  }
+  .product-body h3{
+    font-family:var(--display);
+    font-size:clamp(32px, 3.6vw, 42px);
+    font-weight:400;
+    margin:0 0 16px;
+    letter-spacing:-.015em;
+    line-height:1.05;
+    font-variation-settings:"opsz" 120, "SOFT" 30;
+  }
+  .product-body h3 em{ font-style:italic; color:var(--amber-soft); font-weight:300; font-variation-settings:"opsz" 120, "SOFT" 100; }
+  .product-body p{
+    margin:0 0 36px;
+    font-size:14.5px; line-height:1.7;
+    color:rgba(244,239,229,.68);
+    max-width:42ch;
+    font-weight:300;
+  }
+  .product-specs{
+    margin-top:auto;
+    display:grid; grid-template-columns:repeat(2,1fr); gap:32px;
+    padding-top:32px; border-top:1px solid var(--rule);
+  }
+  .product-specs .k{
+    font-family:var(--mono); font-size:10px;
+    letter-spacing:.22em; text-transform:uppercase;
+    color:rgba(244,239,229,.5);
+    margin-bottom:10px;
+    font-weight:400;
+  }
+  .product-specs .v{
+    font-family:var(--display); font-size:22px;
+    color:var(--bone-1); font-weight:400;
+    letter-spacing:-.01em;
+  }
+  .product-link{
+    margin-top:32px;
+    font-family:var(--mono); font-size:11px;
+    letter-spacing:.22em; text-transform:uppercase;
+    color:var(--amber-soft);
+    display:inline-flex; align-items:center; gap:10px;
+    transition: gap .3s var(--ease-out), color .3s;
+    font-weight:400;
+  }
+  .product-link:hover{ color:var(--amber); gap:14px; }
+
+  /* ---------- PEOPLE ---------- */
+  .team{
+    background:var(--ink-1);
+    padding: clamp(72px, 12vw, 180px) var(--pad);
+  }
+  .team-head{
+    max-width:var(--maxw); margin:0 auto 72px;
+    display:grid; grid-template-columns:1fr; gap:32px; align-items:end;
+  }
+  @media(min-width:920px){
+    .team-head{ grid-template-columns:6fr 5fr; gap:96px; }
+  }
+  .team-head h2{ margin:28px 0 0; max-width:18ch; }
+  .team-head h2 em{ font-style:italic; color:var(--amber-soft); }
+  .team-grid{
+    max-width:var(--maxw); margin:0 auto;
+    display:grid; grid-template-columns:1fr; gap:1px;
+    background:var(--rule);
+    border:1px solid var(--rule);
+  }
+  @media(min-width:680px){ .team-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media(min-width:980px){ .team-grid{ grid-template-columns:repeat(4,1fr); } }
+  .person{
+    padding:36px 32px;
+    position:relative;
+    transition: background .35s;
+    cursor:default;
+    background:var(--ink-1);
+  }
+  .person:hover{ background:var(--ink-2); }
+  .person-portrait{
+    aspect-ratio:3/4;
+    background:linear-gradient(135deg, var(--ink-3), var(--ink-4));
+    margin-bottom:24px;
+    position:relative;
+    overflow:hidden;
+  }
+  .person-portrait img{
+    width:100%; height:100%; object-fit:cover;
+    filter: contrast(1.05) saturate(.78) brightness(.95);
+    transition: transform 1s var(--ease-out), filter .4s;
+  }
+  .person:hover .person-portrait img{
+    transform: scale(1.04);
+    filter: contrast(1.08) saturate(.88) brightness(1);
+  }
+  .person-portrait::after{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, transparent 55%, rgba(10,14,22,.4) 100%);
+    pointer-events:none;
+  }
+  .person-rank{
+    font-family:var(--mono); font-size:10px;
+    letter-spacing:.22em; text-transform:uppercase;
+    color:var(--amber-soft);
+    margin-bottom:12px;
+    min-height:14px;
+    font-weight:400;
+  }
+  .person-name{
+    font-family:var(--display);
+    font-size:22px;
+    font-weight:400;
+    line-height:1.15;
+    margin:0 0 6px;
+    letter-spacing:-.01em;
+    color:var(--bone-1);
+    font-variation-settings:"opsz" 80, "SOFT" 30;
+  }
+  .person-title{
+    font-size:13px;
+    color:rgba(244,239,229,.6);
+    margin-bottom:18px;
+    font-weight:300;
+  }
+  .person-cred{
+    border-top:1px solid var(--rule);
+    padding-top:16px;
+    font-size:13px;
+    color:rgba(244,239,229,.55);
+    line-height:1.6;
+    font-weight:300;
+  }
+  .person-empty .person-portrait{
+    background:linear-gradient(135deg, rgba(200,146,84,.04), transparent);
+    border:1px dashed rgba(244,239,229,.12);
+  }
+  .person-empty .person-portrait::before{
+    content:"+";
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--display);
+    font-size:64px;
+    color:rgba(200,146,84,.3);
+    font-weight:200;
+  }
+
+  /* ---------- ENGAGE ---------- */
+  .engage{
+    background:var(--ink-1);
+    padding: clamp(72px, 12vw, 180px) var(--pad);
+    position:relative;
+    overflow:hidden;
+    border-top:1px solid var(--rule);
+  }
+  .engage-bg{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse at 85% 15%, rgba(200,146,84,.07), transparent 50%),
+      radial-gradient(ellipse at 15% 85%, rgba(63,91,80,.12), transparent 55%);
+    pointer-events:none;
+  }
+  .engage-inner{ position:relative; max-width:var(--maxw); margin:0 auto; }
+  .engage-eyebrow{
+    font-family:var(--mono); font-size:11px;
+    letter-spacing:.28em; text-transform:uppercase;
+    color:var(--amber-soft);
+    margin-bottom:24px;
+    font-weight:400;
+  }
+  .engage-title{
+    font-family:var(--display);
+    font-size:clamp(44px, 7vw, 108px);
+    font-weight:300;
+    letter-spacing:-.03em;
+    line-height:.98;
+    max-width:18ch;
+    margin:0 0 28px;
+    color:var(--bone-1);
+    font-variation-settings:"opsz" 144, "SOFT" 30;
+  }
+  .engage-title em{ font-style:italic; color:var(--amber-soft); font-variation-settings:"opsz" 144, "SOFT" 100; }
+  .engage-sub{
+    font-size:17px;
+    color:rgba(244,239,229,.7);
+    max-width:52ch;
+    margin:0 0 64px;
+    line-height:1.6;
+    font-weight:300;
+  }
+  .engage-paths{
+    display:grid; grid-template-columns:1fr; gap:1px;
+    background:var(--rule);
+    border:1px solid var(--rule);
+  }
+  @media(min-width:760px){
+    .engage-paths{ grid-template-columns:repeat(3,1fr); }
+  }
+  .path{
+    padding:44px 36px;
+    display:flex; flex-direction:column;
+    transition:background .35s;
+    background:var(--ink-1);
+  }
+  .path:hover{ background:var(--ink-2); }
+  .path-meta{
+    display:flex;
+    align-items:baseline;
+    gap:16px;
+    margin-bottom:40px;
+  }
+  .path-num{
+    font-family:var(--display);
+    font-size:24px;
+    font-weight:300;
+    color:var(--amber-soft);
+    letter-spacing:-.01em;
+    line-height:1;
+    font-variation-settings:"opsz" 60, "SOFT" 30;
+  }
+  .path-tag{
+    font-family:var(--mono); font-size:10px;
+    letter-spacing:.24em; text-transform:uppercase;
+    color:var(--amber-soft);
+    font-weight:400;
+    padding-left:14px;
+    border-left:1px solid var(--rule);
+    line-height:1.4;
+  }
+  .path h3{
+    font-family:var(--display);
+    font-size:26px; font-weight:400;
+    line-height:1.2;
+    margin:0 0 14px;
+    letter-spacing:-.015em;
+    font-variation-settings:"opsz" 80, "SOFT" 30;
+  }
+  .path p{
+    margin:0 0 36px;
+    font-size:14.5px;
+    color:rgba(244,239,229,.62);
+    line-height:1.65;
+    font-weight:300;
+  }
+  .path-cta{
+    margin-top:auto;
+    font-family:var(--mono); font-size:11px;
+    letter-spacing:.22em; text-transform:uppercase;
+    color:var(--amber);
+    display:flex; align-items:center; gap:10px;
+    transition: gap .3s var(--ease-out);
+    font-weight:400;
+  }
+  .path-cta:hover{ gap:14px; }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    background:#040710;
+    color:rgba(244,239,229,.55);
+    padding:80px var(--pad) 40px;
+    border-top:1px solid var(--rule);
+  }
+  .footer-inner{
+    max-width:var(--maxw); margin:0 auto;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:48px;
+  }
+  @media(min-width:880px){
+    .footer-inner{ grid-template-columns: 2.2fr 1fr 1fr 1fr; gap:48px; }
+  }
+  .footer-brand .wordmark img{
+    height:44px;
+  }
+  @media(max-width:560px){
+    .footer-brand .wordmark img{ height:36px; }
+  }
+  .footer-tagline{
+    margin-top:32px;
+    font-family:var(--display);
+    font-size:17px;
+    color:rgba(244,239,229,.72);
+    max-width:30ch;
+    line-height:1.45;
+    font-weight:400;
+    font-variation-settings:"opsz" 60, "SOFT" 30;
+  }
+  .footer-addr{
+    margin-top:28px;
+    font-family:var(--mono); font-size:11px;
+    line-height:1.85;
+    color:rgba(244,239,229,.5);
+    letter-spacing:.04em;
+    font-weight:400;
+  }
+  .footer-socials{
+    margin-top:28px;
+    display:flex; gap:8px;
+  }
+  .footer-socials a{
+    width:36px; height:36px;
+    border:1px solid var(--rule);
+    display:flex; align-items:center; justify-content:center;
+    transition: border-color .35s, background .35s;
+  }
+  .footer-socials a:hover{
+    border-color: var(--amber-soft);
+    background: rgba(200,146,84,.04);
+  }
+  .footer-socials img{
+    width:14px; height:14px;
+    filter: grayscale(1) brightness(2.6) opacity(.55);
+    transition: filter .35s;
+  }
+  .footer-socials a:hover img{
+    filter: grayscale(0) brightness(1) opacity(1);
+  }
+  .footer-col h4{
+    font-family:var(--mono); font-size:11px;
+    letter-spacing:.24em; text-transform:uppercase;
+    color:var(--amber-soft);
+    font-weight:400;
+    margin:0 0 22px;
+  }
+  .footer-col ul{ list-style:none; padding:0; margin:0; }
+  .footer-col li{ margin-bottom:12px; }
+  .footer-col a{
+    color:rgba(244,239,229,.62);
+    font-size:13px;
+    transition:color .25s;
+    font-weight:300;
+    line-height:1.5;
+  }
+  .footer-col a:hover{ color:var(--bone-1); }
+  .footer-bottom{
+    max-width:var(--maxw); margin:64px auto 0;
+    padding-top:28px;
+    border-top:1px solid var(--rule);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px;
+    font-family:var(--mono); font-size:11px;
+    color:rgba(244,239,229,.4);
+    letter-spacing:.08em;
+    font-weight:400;
+  }
+
+  .reveal{
+    opacity:0;
+    transform:translateY(16px);
+    transition:opacity 1s var(--ease-out), transform 1s var(--ease-out);
+  }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  @media(prefers-reduced-motion:reduce){
+    *{ animation:none !important; transition:none !important; }
+    .reveal{ opacity:1; transform:none; }
+    .hero h1 .word, .hero-label, .hero-sub, .hero-cta-row, .hero-status{ opacity:1; transform:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" id="nav">
+  <a href="#" class="wordmark" aria-label="EnSenSys">
+    <img src="./assets/ensensys_logo.png" alt="EnSenSys" />
+  </a>
+  <div class="nav-links">
+    <a href="#technology">Technology</a>
+    <a href="#products">Platforms</a>
+    <a href="#team">Team</a>
+    <a href="#press">Press</a>
+  </div>
+  <a href="#engage" class="nav-cta">Request Briefing</a>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-product">
+    <img src="./assets/portal_image_1.jpg" alt="ESS Protect mobile imaging portal" id="heroProduct" />
+  </div>
+
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-label section-label">Hyperspectral pathogen detection</div>
+      <h1 class="display h-display">
+        <span class="word">Every</span>
+        <span class="word">breath</span>
+        <span class="word">leaves</span>
+        <span class="word">a</span>
+        <em class="word">signature.</em>
+      </h1>
+      <p class="hero-sub">
+        We classify the pathogens hidden inside it in seconds, with hyperspectral imaging and AI. No swab. No bio-waste. No bottleneck.
+      </p>
+      <div class="hero-cta-row">
+        <a href="#engage" class="btn btn-primary">
+          Request a briefing <span class="arrow">→</span>
+        </a>
+        <a href="#technology" class="btn btn-ghost">
+          How it works <span class="arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-status">
+    <div class="status-cell">
+      <div class="status-num">01</div>
+      <div class="v"><span class="live-dot"></span>Series II active <span class="sub">National medical center</span></div>
+    </div>
+    <div class="status-cell">
+      <div class="status-num">02</div>
+      <div class="v">DHS SVIP <span class="sub">Cohort alumni, 2021</span></div>
+    </div>
+    <div class="status-cell">
+      <div class="status-num">03</div>
+      <div class="v">USDA AI TechX <span class="sub">Bovine respiratory disease, 2025</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MISSION ============ -->
+<section class="mission" id="mission">
+  <div class="mission-inner">
+    <div>
+      <div class="section-label dark">01 · Mission</div>
+      <h2 class="display h-mega mission-title">
+        Protect people, animals, and the environments <em>they share.</em>
+      </h2>
+    </div>
+    <div class="mission-body">
+      <p>EnSenSys was formed in 2020 as a coalition of defense veterans, applied scientists, clinicians, and engineers, brought together by one observation: the fastest way to stop an outbreak is to see it before it spreads.</p>
+      <p>We build the sensing systems that make that possible. Non-invasive. Subject-agnostic. Designed for the places where contagion travels fastest.</p>
+      <div class="mission-stats reveal">
+        <div class="stat">
+          <div class="num"><span class="count" data-to="7">0</span><span class="unit">yr</span></div>
+          <div class="lbl">Coalition tenure</div>
+        </div>
+        <div class="stat">
+          <div class="num"><span class="count" data-to="3">0</span>/3</div>
+          <div class="lbl">SVIP · AI TechX · Series II</div>
+        </div>
+        <div class="stat">
+          <div class="num"><span class="count" data-to="2">0</span><span class="unit">species</span></div>
+          <div class="lbl">Human and bovine, today</div>
+        </div>
+        <div class="stat">
+          <div class="num"><span class="count" data-to="0">0</span><span class="unit">waste</span></div>
+          <div class="lbl">No swabs · no consumables</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TECHNOLOGY ============ -->
+<section class="tech" id="technology">
+  <div class="tech-inner">
+    <div class="tech-head">
+      <div>
+        <div class="section-label">02 · Technology</div>
+        <h2 class="display h-lg">A signature library, read by AI, refreshed <em>at the edge.</em></h2>
+      </div>
+      <p class="lede">
+        Pathogens scatter light in patterns specific to their molecular structure. The portal captures those patterns from exhaled breath and resolves them against a continually growing reference library. No biological material is collected. No identity is stored.
+      </p>
+    </div>
+
+    <div class="pipeline">
+      <div class="step">
+        <div class="step-num">01 · Capture</div>
+        <div class="step-icon">
+          <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="#c89254" stroke-width="1">
+            <path d="M8 24c0-8 7-14 16-14s16 6 16 14-7 14-16 14H8z"/>
+            <path class="ray" d="M14 18c2-2 5-3 8-3"/>
+            <path class="ray" d="M14 30c2 2 5 3 8 3"/>
+            <circle class="dot-accent" cx="32" cy="24" r="2" fill="#c89254" stroke="none"/>
+          </svg>
+        </div>
+        <h3>Capture without contact.</h3>
+        <p>An effluent breath sample passes through the imaging chamber. UV decontaminates between subjects. No biological waste produced at any stage.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02 · Resolve</div>
+        <div class="step-icon">
+          <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="#c89254" stroke-width="1">
+            <path class="ray" d="M8 24L40 8"/>
+            <path class="ray" d="M8 24L40 16"/>
+            <path class="ray" d="M8 24L40 24"/>
+            <path class="ray" d="M8 24L40 32"/>
+            <path class="ray" d="M8 24L40 40"/>
+            <circle class="dot-accent" cx="8" cy="24" r="2.5" fill="#c89254" stroke="none"/>
+          </svg>
+        </div>
+        <h3>Resolve to a signature.</h3>
+        <p>A proprietary hyperspectral stack records the scattered light. The system isolates the spectral fingerprint and discards everything that is not signal.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03 · Classify</div>
+        <div class="step-icon">
+          <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="#c89254" stroke-width="1">
+            <rect x="6" y="6" width="14" height="14" fill="transparent"/>
+            <rect x="28" y="6" width="14" height="14" fill="transparent"/>
+            <rect x="6" y="28" width="14" height="14" fill="transparent"/>
+            <rect x="28" y="28" width="14" height="14" fill="transparent"/>
+            <path d="M20 13h8M13 20v8M35 20v8M20 35h8"/>
+            <circle class="dot-accent" cx="24" cy="24" r="2" fill="#c89254" stroke="none"/>
+          </svg>
+        </div>
+        <h3>Classify against the library.</h3>
+        <p>An onboard model matches the fingerprint against a versioned signature library. Known and unknown threats are flagged. Anonymized counts feed outbreak surveillance.</p>
+      </div>
+    </div>
+
+    <!-- Signature → Verdict panel -->
+    <div class="signature reveal">
+      <div class="signature-head">
+        <div class="lbl">From data to decision</div>
+        <h3>The system extracts a signature. <em>Then it collapses to one answer.</em></h3>
+        <p>Inside the chamber, a controlled illumination source isolates the sample volume. The capture is plotted against the reference library, classified, and rendered to the operator as a single unambiguous result. Everything else stays under the hood.</p>
+      </div>
+
+      <div class="signature-flow">
+        <!-- LEFT: spectral chart -->
+        <div class="chart-wrap">
+          <div class="chart-meta">
+            <span>SAMPLE · SIG-0231 · λ 380–780 NM</span>
+            <span class="live">Live</span>
+          </div>
+          <svg class="chart-svg" viewBox="0 0 600 280" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="sampleGrad" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#dcae7a" stop-opacity=".5"/>
+                <stop offset="100%" stop-color="#dcae7a" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="bottomSpec" x1="0" x2="1">
+                <stop offset="0%" stop-color="#6c3fb5"/>
+                <stop offset="22%" stop-color="#2a8fb8"/>
+                <stop offset="48%" stop-color="#4cb04a"/>
+                <stop offset="72%" stop-color="#d9b343"/>
+                <stop offset="100%" stop-color="#d54b3a"/>
+              </linearGradient>
+            </defs>
+            <!-- horizontal grid -->
+            <g stroke="rgba(244,239,229,.05)" stroke-width="1">
+              <line x1="0" y1="50" x2="600" y2="50"/>
+              <line x1="0" y1="100" x2="600" y2="100"/>
+              <line x1="0" y1="150" x2="600" y2="150"/>
+              <line x1="0" y1="200" x2="600" y2="200"/>
+            </g>
+            <!-- Y axis labels -->
+            <g font-family="IBM Plex Mono" font-size="8" fill="rgba(244,239,229,.3)" letter-spacing=".06em">
+              <text x="4" y="54">100</text>
+              <text x="4" y="104">75</text>
+              <text x="4" y="154">50</text>
+              <text x="4" y="204">25</text>
+            </g>
+            <!-- vertical guides -->
+            <g stroke="rgba(244,239,229,.04)" stroke-width="1">
+              <line x1="120" y1="0" x2="120" y2="250"/>
+              <line x1="240" y1="0" x2="240" y2="250"/>
+              <line x1="360" y1="0" x2="360" y2="250"/>
+              <line x1="480" y1="0" x2="480" y2="250"/>
+            </g>
+            <!-- bottom spectrum reference bar -->
+            <rect x="0" y="258" width="600" height="4" fill="url(#bottomSpec)" opacity=".35"/>
+            <!-- reference curve (dim) -->
+            <path class="chart-ref-curve"
+                  d="M 0,220 C 60,210 100,180 150,170 C 200,162 240,140 280,135 C 320,130 360,125 400,140 C 440,155 480,180 520,195 C 550,205 580,212 600,215" />
+            <!-- sample area fill -->
+            <path class="chart-sample-area"
+                  d="M 0,220 C 50,210 80,180 120,170 C 160,160 180,115 230,80 C 260,60 290,55 320,72 C 360,95 380,140 430,175 C 470,200 510,208 560,215 C 580,218 595,220 600,222 L 600,250 L 0,250 Z" />
+            <!-- sample curve (bright) -->
+            <path class="chart-sample-curve"
+                  d="M 0,220 C 50,210 80,180 120,170 C 160,160 180,115 230,80 C 260,60 290,55 320,72 C 360,95 380,140 430,175 C 470,200 510,208 560,215 C 580,218 595,220 600,222" />
+            <!-- peaks -->
+            <g class="chart-peak">
+              <line x1="230" y1="80" x2="230" y2="30" stroke="rgba(220,174,122,.4)" stroke-dasharray="2 3"/>
+              <line x1="320" y1="72" x2="320" y2="30" stroke="rgba(220,174,122,.4)" stroke-dasharray="2 3"/>
+              <circle cx="230" cy="80" r="3" fill="#dcae7a" stroke="#070b13" stroke-width="1.5"/>
+              <circle cx="320" cy="72" r="3" fill="#dcae7a" stroke="#070b13" stroke-width="1.5"/>
+              <text x="234" y="24" font-family="IBM Plex Mono" font-size="8" fill="rgba(220,174,122,.8)" letter-spacing=".1em">P1 · 540nm</text>
+              <text x="324" y="24" font-family="IBM Plex Mono" font-size="8" fill="rgba(220,174,122,.8)" letter-spacing=".1em">P2 · 620nm</text>
+            </g>
+          </svg>
+          <div class="chart-x-axis">
+            <span>380</span><span>460</span><span>540</span><span>620</span><span>700</span><span>780</span>
+          </div>
+        </div>
+
+        <!-- ARROW -->
+        <div class="flow-arrow">
+          <svg viewBox="0 0 100 40" aria-hidden="true">
+            <line class="arrow-line" x1="2" y1="20" x2="40" y2="20"/>
+            <circle class="arrow-node" cx="50" cy="20" r="2.5"/>
+            <line class="arrow-line arrow-line-2" x1="60" y1="20" x2="88" y2="20"/>
+            <path class="arrow-head" d="M86,14 L98,20 L86,26"/>
+          </svg>
+        </div>
+
+        <!-- RIGHT: operator UI -->
+        <div class="verdict">
+          <div class="verdict-head">
+            <span>Operator display</span>
+            <span class="right">Real screen capture</span>
+          </div>
+          <div class="verdict-img-wrap">
+            <img src="./assets/multimedia_02_device_walkaround.jpg" alt="Operator display showing THREAT / NO THREAT classification" loading="lazy" />
+          </div>
+          <div class="verdict-caption">
+            What the operator sees · binary, by design
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ IN THE FIELD ============ -->
+<section class="field" id="field">
+  <div class="field-inner">
+    <div class="field-head">
+      <div>
+        <div class="section-label">03 · In the Field</div>
+        <h2 class="display h-lg">Not a render. <em>In use today.</em></h2>
+      </div>
+      <p class="lede">
+        Active at cooperator herds with the University of Tennessee, validated against PCR every cycle, refined on site by the team that builds it.
+      </p>
+    </div>
+
+    <div class="field-grid">
+      <div class="cell cell-big">
+        <img src="./assets/point_of_entry_concept.jpg" alt="Cattle scan in progress" loading="lazy" />
+        <div class="caption">
+          <div class="where">UT cooperator herd · 2025</div>
+          <div class="what">A signature capture in progress. The cart sits at the chute; the operator works the panel; the cycle runs in seconds.</div>
+        </div>
+      </div>
+      <div class="cell">
+        <img src="./assets/portal_image_2.jpg" alt="Imaging chamber under controlled illumination" loading="lazy" />
+        <div class="caption">
+          <div class="where">Inside the chamber</div>
+          <div class="what">Controlled UV illumination isolates the sample.</div>
+        </div>
+      </div>
+      <div class="cell">
+        <img src="./assets/breath_scan_comparison.jpg" alt="PCR validation administered prior to scan" loading="lazy" />
+        <div class="caption">
+          <div class="where">Validation</div>
+          <div class="what">PCR swabs precede every signature capture.</div>
+        </div>
+      </div>
+      <div class="cell">
+        <img src="./assets/ut_partnership_imaging.jpg" alt="EnSenSys mobile cart deployed at intake gate" loading="lazy" />
+        <div class="caption">
+          <div class="where">Intake deployment</div>
+          <div class="what">Integrated into the operation's normal flow.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRODUCTS ============ -->
+<section class="products" id="products">
+  <div class="products-head">
+    <div>
+      <div class="section-label dark">04 · Platforms</div>
+      <h2 class="display h-lg">Two products. <em>One sensing core.</em></h2>
+    </div>
+    <p class="lede dark">
+      ESS Protect is the deployable form factor. Today it screens people at controlled passages, and cattle at intake. Tomorrow it screens the environments around them.
+    </p>
+  </div>
+
+  <div class="product-grid">
+    <article class="product-card">
+      <div class="product-img">
+        <span class="product-tag">For people</span>
+        <img src="./assets/portal_image_1.jpg" alt="ESS Protect mobile portal" loading="lazy" />
+      </div>
+      <div class="product-body">
+        <h3>ESS Protect <em>Human</em></h3>
+        <p>A walk-through point-of-passage portal for airports, ports of entry, military installations, hospitals, schools, and any venue where contagion risk meets throughput pressure. No personal data captured.</p>
+        <div class="product-specs">
+          <div>
+            <div class="k">Scan time</div>
+            <div class="v">~10 sec</div>
+          </div>
+          <div>
+            <div class="k">Trial stage</div>
+            <div class="v">Series II</div>
+          </div>
+        </div>
+        <a href="#" class="product-link">Read the brief <span>→</span></a>
+      </div>
+    </article>
+
+    <article class="product-card">
+      <div class="product-img">
+        <span class="product-tag">For livestock</span>
+        <img src="./assets/cattle_hero.jpg" alt="Cattle in pasture at sunset" loading="lazy" />
+      </div>
+      <div class="product-body">
+        <h3>ESS Protect <em>Animal</em></h3>
+        <p>Adapted for cattle intake at feedlots and veterinary processing. Identifies BVD, BRSV, and an expanding library of bovine respiratory diseases before infected animals reach the herd. Built with the University of Tennessee.</p>
+        <div class="product-specs">
+          <div>
+            <div class="k">Study cohort</div>
+            <div class="v">UT &amp; K&amp;M Vet</div>
+          </div>
+          <div>
+            <div class="k">Grant</div>
+            <div class="v">AI TechX 2025</div>
+          </div>
+        </div>
+        <a href="#" class="product-link">Read the brief <span>→</span></a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ============ PEOPLE ============ -->
+<section class="team" id="team">
+  <div class="team-head">
+    <div>
+      <div class="section-label">05 · People</div>
+      <h2 class="display h-lg">Operators, clinicians, and inventors. <em>In one room.</em></h2>
+    </div>
+    <p class="lede">
+      Two retired flag officers. A medical school dean. A career maintenance officer. A patent-holding multi-source fusion architect. A policy lead with three decades inside defense procurement.
+    </p>
+  </div>
+
+  <div class="team-grid">
+    <article class="person">
+      <div class="person-portrait">
+        <img src="./assets/john_glad_castellaw_ceo.jpg" alt="John Glad Castellaw" loading="lazy" />
+      </div>
+      <div class="person-rank">Lt Gen USMC (Ret.)</div>
+      <h3 class="person-name">John "Glad" Castellaw</h3>
+      <div class="person-title">Chief Executive Officer</div>
+      <div class="person-cred">36 years Marine Corps. National security expert across food, energy, and climate. Co-founded Farmspace Systems (2014).</div>
+    </article>
+
+    <article class="person">
+      <div class="person-portrait">
+        <img src="./assets/wanda_castellaw_policy_compliance.jpg" alt="Wanda Castellaw" loading="lazy" />
+      </div>
+      <div class="person-rank">Compliance lead</div>
+      <h3 class="person-name">Wanda Castellaw</h3>
+      <div class="person-title">Policy &amp; Compliance</div>
+      <div class="person-cred">30+ years managing high-visibility, dispersed program teams across Army, Navy, and Marine Corps proposals and contracts.</div>
+    </article>
+
+    <article class="person">
+      <div class="person-portrait">
+        <img src="./assets/dr_jerry_dunlap_evp.jpg" alt="Dr. Jerry Dunlap" loading="lazy" />
+      </div>
+      <div class="person-rank">Founder, operator</div>
+      <h3 class="person-name">Dr. Jerry Dunlap</h3>
+      <div class="person-title">EVP &amp; Senior Business Director</div>
+      <div class="person-cred">Internet-era pioneer. Co-founded ISDN-Net (1995, first ISP in Tennessee). Five data centers, five profitable exits.</div>
+    </article>
+
+    <article class="person">
+      <div class="person-portrait">
+        <img src="./assets/al_league_cto.png" alt="Al League" loading="lazy" />
+      </div>
+      <div class="person-rank">US Patent 10346446</div>
+      <h3 class="person-name">Al League</h3>
+      <div class="person-title">Chief Technology Officer</div>
+      <div class="person-cred">39 years architecting decision support and multi-source information fusion. Patent holder for the reference framework.</div>
+    </article>
+
+    <article class="person">
+      <div class="person-portrait">
+        <img src="./assets/derick_seaton_logistics.jpg" alt="Derick Seaton" loading="lazy" />
+      </div>
+      <div class="person-rank">Capt USAF (Ret.)</div>
+      <h3 class="person-name">Derick Seaton</h3>
+      <div class="person-title">Logistics &amp; Sustainment</div>
+      <div class="person-cred">Air Force aviation maintenance officer. ISR Group safety and compliance veteran. Farmspace Systems co-founder.</div>
+    </article>
+
+    <article class="person">
+      <div class="person-portrait">
+        <img src="./assets/ed_yarish_svp_finance.png" alt="Ed Yarish" loading="lazy" />
+      </div>
+      <div class="person-rank">Maj Gen USAF (Ret.)</div>
+      <h3 class="person-name">Ed Yarish</h3>
+      <div class="person-title">SVP, Finance</div>
+      <div class="person-cred">36 years Air Force / Air Force Reserve in acquisition, technology, and logistics. 30+ years across public and private companies.</div>
+    </article>
+
+    <article class="person">
+      <div class="person-portrait">
+        <img src="./assets/dr_scott_strome_cmo.jpg" alt="Dr. Scott Strome" loading="lazy" />
+      </div>
+      <div class="person-rank">MD · 120+ publications</div>
+      <h3 class="person-name">Dr. Scott Strome</h3>
+      <div class="person-title">Chief Medical Officer</div>
+      <div class="person-cred">Former Dean, UTHSC School of Medicine. Cancer researcher of international standing. University of Maryland Entrepreneur of the Year, twice.</div>
+    </article>
+
+    <article class="person person-empty">
+      <div class="person-portrait"></div>
+      <div class="person-rank">We're hiring</div>
+      <h3 class="person-name">Join the team</h3>
+      <div class="person-title">Applied AI · Sensor Engineering · Clinical</div>
+      <div class="person-cred">If you have built systems people trust under pressure, we'd like to talk.</div>
+    </article>
+  </div>
+</section>
+
+<!-- ============ ENGAGE ============ -->
+<section class="engage" id="engage">
+  <div class="engage-bg"></div>
+  <div class="engage-inner">
+    <div class="engage-eyebrow">06 · Engage</div>
+    <h2 class="engage-title">If your environment can't <em>afford a miss,</em> let's talk.</h2>
+    <p class="engage-sub">EnSenSys engages with federal, healthcare, and agricultural programs at the briefing level. Tell us about your deployment surface and we will respond within two business days.</p>
+
+    <div class="engage-paths">
+      <div class="path">
+        <div class="path-meta">
+          <span class="path-num">01</span>
+          <span class="path-tag">Defense &amp; Federal</span>
+        </div>
+        <h3>Ports, bases, facilities</h3>
+        <p>SVIP follow-on opportunities, joint research, and operational pilots at controlled passages. SBIR/STTR welcome.</p>
+        <a href="mailto:info@ensensys.com" class="path-cta">Request briefing <span>→</span></a>
+      </div>
+      <div class="path">
+        <div class="path-meta">
+          <span class="path-num">02</span>
+          <span class="path-tag">Healthcare Systems</span>
+        </div>
+        <h3>Hospitals, clinics, EDs</h3>
+        <p>Series II partner sites and pilot deployments at high-risk entry points. Clinical study collaborations available.</p>
+        <a href="mailto:info@ensensys.com" class="path-cta">Open conversation <span>→</span></a>
+      </div>
+      <div class="path">
+        <div class="path-meta">
+          <span class="path-num">03</span>
+          <span class="path-tag">Agriculture</span>
+        </div>
+        <h3>Feedlots, veterinary, supply chain</h3>
+        <p>Cattle intake screening, BRD library expansion, and field study partnerships through the AI TechX program.</p>
+        <a href="mailto:info@ensensys.com" class="path-cta">Discuss a pilot <span>→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer id="press">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="#" class="wordmark" aria-label="EnSenSys">
+        <img src="./assets/ensensys_logo.png" alt="EnSenSys" />
+      </a>
+      <div class="footer-tagline">
+        Protect people, animals, and the environments they share.
+      </div>
+      <div class="footer-addr">
+        Enterprise Sensor Systems, LLC<br/>
+        PO Box 307<br/>
+        Alamo, TN 38001<br/>
+        (833) 736-7670<br/>
+        info@ensensys.com
+      </div>
+      <div class="footer-socials">
+        <a href="https://www.linkedin.com/company/enterprise-sensor-systems-ensensys/" aria-label="LinkedIn"><img src="./assets/social_linkedin.png" alt="" /></a>
+        <a href="https://www.youtube.com/@EnterpriseSensorSystems" aria-label="YouTube"><img src="./assets/social_youtube.png" alt="" /></a>
+        <a href="https://x.com/EnSenSys_ESS" aria-label="X"><img src="./assets/social_x.png" alt="" /></a>
+        <a href="https://www.facebook.com/profile.php?id=61577351257468" aria-label="Facebook"><img src="./assets/social_facebook.png" alt="" /></a>
+        <a href="https://www.instagram.com/enterprisesensorsystems/" aria-label="Instagram"><img src="./assets/social_instagram.png" alt="" /></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Press</h4>
+      <ul>
+        <li><a href="https://utianews.tennessee.edu/ai-techx-grant-to-advance-cattle-disease-detection/">UT × EnSenSys · AI TechX Grant, Jun 2025</a></li>
+        <li><a href="#">DHS SVIP Demo Week, Sep 2021</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Platforms</h4>
+      <ul>
+        <li><a href="#products">ESS Protect Human</a></li>
+        <li><a href="#products">ESS Protect Animal</a></li>
+        <li><a href="#technology">Technology</a></li>
+        <li><a href="#">Research</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#mission">Mission</a></li>
+        <li><a href="#team">Team</a></li>
+        <li><a href="#engage">Engage</a></li>
+        <li><a href="#">Careers</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2026 Enterprise Sensor Systems, LLC · An Equal Opportunity Employer</div>
+    <div>Premium concept v4 · Not the live site</div>
+  </div>
+</footer>
+
+<script>
+  // Nav scroll state
+  const nav = document.getElementById('nav');
+  const scrollProgress = document.getElementById('scrollProgress');
+  const onScroll = () => {
+    const y = window.scrollY;
+    if (y > 30) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
+    // scroll progress
+    const docH = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = docH > 0 ? (y / docH) * 100 : 0;
+    scrollProgress.style.width = pct + '%';
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Stagger word reveal in hero H1 — set animation-delay on each word
+  document.querySelectorAll('.hero h1 .word').forEach((w, i) => {
+    w.style.animationDelay = (0.2 + i * 0.07) + 's';
+  });
+
+  // Hero product parallax
+  const heroProduct = document.getElementById('heroProduct');
+  if (heroProduct) {
+    const onParallax = () => {
+      const y = window.scrollY;
+      if (y < window.innerHeight * 1.2) {
+        heroProduct.style.transform = `translateY(${y * 0.18}px)`;
+      }
+    };
+    window.addEventListener('scroll', onParallax, { passive: true });
+  }
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // Count-up
+  const counted = new WeakSet();
+  const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+  function animateCount(el) {
+    if (counted.has(el)) return;
+    counted.add(el);
+    const target = parseInt(el.dataset.to, 10);
+    if (target === 0) { el.textContent = '0'; return; }
+    const duration = 1600;
+    const start = performance.now();
+    function step(now) {
+      const t = Math.min((now - start) / duration, 1);
+      el.textContent = Math.round(target * easeOutCubic(t));
+      if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  const countIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('.count').forEach(animateCount);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.mission-stats').forEach(el => countIO.observe(el));
+</script>
+</body>
+</html>
