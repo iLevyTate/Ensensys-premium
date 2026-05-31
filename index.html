@@ -103,8 +103,8 @@
   *{box-sizing:border-box}
   /* Render gate: hold the first paint until fonts are ready so text is laid out once (zero layout shift) */
   html{background:#0a0e16;}
-  body{opacity:1; transition:opacity .3s var(--ease-out);}
-  html.fonts-loading body{opacity:0;}
+  body{opacity:1; visibility:visible; transition:opacity .3s var(--ease-out);}
+  html.fonts-loading body{opacity:0; visibility:hidden;}
   html{scroll-behavior:smooth; scroll-padding-top:88px;}
   body{
     margin:0;
